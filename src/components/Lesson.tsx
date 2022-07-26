@@ -2,15 +2,18 @@ import { CheckCircle, Lock } from 'phosphor-react';
 
 import { isPast, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Link, useParams } from 'react-router-dom';
 
 interface LessonProps {
 	title: string;
-	slug: string;
+	lessonSlug: string;
 	availableAt: Date;
 	type: 'live' | 'class';
 }
 
-export function Lesson({ title, slug, availableAt, type }: LessonProps) {
+export function Lesson({ title, lessonSlug, availableAt, type }: LessonProps) {
+	const { slug } = useParams<{ slug: string }>();
+
 	const isLessonAvailable = isPast(availableAt);
 	const availableformattedDate = format(
 		availableAt,
@@ -20,19 +23,29 @@ export function Lesson({ title, slug, availableAt, type }: LessonProps) {
 		}
 	);
 
+	const isCurrentLesson = lessonSlug === slug;
+
 	return (
-		<a href="#">
+		<Link to={`/event/lesson/${lessonSlug}`} className="group">
 			<span className="text-gray-300">{availableformattedDate}</span>
 
-			<div className="rounded border border-gray-500 p-4 mt-2">
+			<div
+				className={`rounded border border-gray-500 p-4 mt-2 group-hover:border-green-500 ${
+					isCurrentLesson ? 'bg-green-500' : ''
+				}`}
+			>
 				<header className="flex items-center justify-between">
 					{isLessonAvailable ? (
-						<span className="flex items-center gap-2 text-sm text-blue-500 font-medium">
+						<span
+							className={`flex items-center gap-2 text-sm font-medium ${
+								isCurrentLesson ? 'text-white' : 'text-blue-500'
+							}`}
+						>
 							<CheckCircle size={20} />
 							Conteúdo liberado
 						</span>
 					) : (
-						<span className="flex items-center gap-2 text-sm text-orange-500 font-medium">
+						<span className="flex items-center gap-2 text-sm font-medium text-orange-500">
 							<Lock size={20} />
 							Em breve
 						</span>
@@ -43,8 +56,14 @@ export function Lesson({ title, slug, availableAt, type }: LessonProps) {
 					</span>
 				</header>
 
-				<strong className="text-gray-200 mt-5 block">{title}</strong>
+				<strong
+					className={`${
+						isCurrentLesson ? 'text-white' : 'text-gray-200'
+					} mt-5 block`}
+				>
+					{title}
+				</strong>
 			</div>
-		</a>
+		</Link>
 	);
 }
